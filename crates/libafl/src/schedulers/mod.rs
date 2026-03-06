@@ -1,6 +1,6 @@
 //! Schedule the access to the Corpus.
 
-use alloc::{borrow::ToOwned, string::ToString};
+use alloc::borrow::ToOwned;
 use core::{hash::Hash, marker::PhantomData};
 
 pub mod testcase_score;
@@ -117,7 +117,9 @@ where
 {
     let observer = observers
         .get(scheduler.observer_handle())
-        .ok_or_else(|| Error::key_not_found("Observer not found".to_string()))?
+        .unwrap_or_else(|| panic!("Required observer '{}' for scheduler was not found. \
+Ensure the executor includes this observer and the scheduler is configured with the correct handle.",
+                scheduler.observer_handle().name()))
         .as_ref();
 
     let mut hash = generic_hash_std(observer) as usize;

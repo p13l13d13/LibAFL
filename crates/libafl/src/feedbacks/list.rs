@@ -90,7 +90,7 @@ where
         OT: MatchName,
         S: HasNamedMetadata,
     {
-        let observer = observers.get(&self.observer_handle).unwrap();
+        let observer = observers.get(&self.observer_handle).expect("ListFeedback requires a ListObserver, but it was not found. Ensure the executor includes this observer and that you are using the correct observer handle.");
         // TODO register the list content in a testcase metadata
         self.novelty.clear();
         // can't fail

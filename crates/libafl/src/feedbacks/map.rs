@@ -374,7 +374,7 @@ where
             let meta = MapNoveltiesMetadata::new(novelties);
             testcase.add_metadata(meta);
         }
-        let observer = observers.get(&self.map_ref).expect("MapObserver not found. This is likely because you entered the crash handler with the wrong executor/observer").as_ref();
+        let observer = observers.get(&self.map_ref).unwrap_or_else(|| panic!("MapFeedback requires a MapObserver '{}', but it was not found. Ensure the executor includes this observer and that you are using the correct observer handle.", self.map_ref.name())).as_ref();
         let initial = observer.initial();
         let map_state = state
             .named_metadata_map_mut()
@@ -537,7 +537,7 @@ where
     {
         let mut interesting = false;
         // TODO Replace with match_name_type when stable
-        let observer = observers.get(&self.map_ref).unwrap().as_ref();
+        let observer = observers.get(&self.map_ref).expect("MapFeedback requires a MapObserver, but it was not found. Ensure the executor includes this observer and that you are using the correct observer handle.").as_ref();
 
         let map_state = state
             .named_metadata_map_mut()

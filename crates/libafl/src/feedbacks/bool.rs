@@ -69,12 +69,9 @@ where
         observers: &OT,
         _exit_kind: &crate::executors::ExitKind,
     ) -> Result<bool, Error> {
-        let Some(observer) = observers.get(&self.observer_hnd) else {
-            return Err(Error::illegal_state(format!(
-                "Observer {:?} not found",
-                self.observer_hnd
-            )));
-        };
+        let observer = observers.get(&self.observer_hnd).unwrap_or_else(|| panic!("BoolValueFeedback requires observer {:?}, but it was not found. \
+Ensure the executor contains this ValueObserver and that you are using the correct observer tuple in this context.",
+                self.observer_hnd));
 
         let val = observer.value.as_ref();
 

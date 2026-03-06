@@ -152,15 +152,20 @@ where
         observers: &OT,
         _exit_kind: &ExitKind,
     ) -> Result<bool, Error> {
-        fn err(name: &str) -> Error {
-            Error::illegal_argument(format!("DiffFeedback: observer {name} not found"))
-        }
-        let o1: &O1 = observers
-            .get(&self.o1_ref)
-            .ok_or_else(|| err(self.o1_ref.name()))?;
-        let o2: &O2 = observers
-            .get(&self.o2_ref)
-            .ok_or_else(|| err(self.o2_ref.name()))?;
+        let o1: &O1 = observers.get(&self.o1_ref).unwrap_or_else(|| {
+            panic!(
+                "DiffFeedback requires observer '{}', but it was not found. \
+Ensure the executor includes this observer and that you are using the expected observer tuple.",
+                self.o1_ref.name()
+            )
+        });
+        let o2: &O2 = observers.get(&self.o2_ref).unwrap_or_else(|| {
+            panic!(
+                "DiffFeedback requires observer '{}', but it was not found. \
+Ensure the executor includes this observer and that you are using the expected observer tuple.",
+                self.o2_ref.name()
+            )
+        });
         let res = self.comparator.compare(o1, o2) == DiffResult::Diff;
         #[cfg(feature = "track_hit_feedbacks")]
         {

@@ -151,7 +151,7 @@ where
     ) -> Result<ExitKind, Error> {
         let kind = self.executor.run_target(fuzzer, state, mgr, input)?;
         let ot = self.executor.observers();
-        let ob = ot.get(&self.ob_ref).unwrap().as_ref();
+        let ob = ot.get(&self.ob_ref).expect("SANDExecutor requires a MapObserver, but it was not found. Ensure the executor includes this observer and that you are using the correct observer handle.").as_ref();
         let mut covs = ob.to_vec();
         match self.pattern {
             SANDExecutionPattern::SimplifiedTrace => {

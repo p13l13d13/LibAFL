@@ -925,9 +925,11 @@ where
         testcase: &mut Testcase<I>,
     ) -> Result<(), Error> {
         let Some(observer) = observers.get(&self.observer_handle) else {
-            return Err(Error::illegal_state(
-                "Observer referenced by TimeFeedback is not found in observers given to the fuzzer",
-            ));
+            panic!(
+                "TimeFeedback requires a TimeObserver '{}', but it was not found in the observers tuple. \
+Ensure the executor includes this observer and you are passing the correct observers to the fuzzer.",
+                self.observer_handle.name()
+            );
         };
 
         *testcase.exec_time_mut() = *observer.last_runtime();

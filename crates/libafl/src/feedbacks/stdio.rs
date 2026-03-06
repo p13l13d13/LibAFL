@@ -37,24 +37,23 @@ impl StdOutToMetadataFeedback {
         &mut self,
         observers: &OT,
         testcase: &mut Testcase<I>,
-    ) -> Result<(), Error>
+    ) -> ()
     where
         OT: MatchName,
     {
-        let observer = observers
-            .get(&self.o_ref)
-            .ok_or_else(|| Error::illegal_state("StdOutObserver is missing"))?;
+        let observer = observers.get(&self.o_ref).expect(
+            "StdOutToMetadataFeedback requires a StdOutObserver, but none was found. \
+Make sure the executor includes a StdOutObserver and you are not invoking this feedback in a crash handler with a different observer set.",
+        );
         let buffer = observer
             .output
             .as_ref()
-            .ok_or_else(|| Error::illegal_state("StdOutObserver has no stdout"))?;
+            .expect("StdOutObserver is present but has no captured stdout buffer. Ensure the executor captures stdout for this observer.");
         let stdout = String::from_utf8_lossy(buffer).into_owned();
 
         testcase
             .metadata_map_mut()
             .insert(StdOutMetadata { stdout });
-
-        Ok(())
     }
 }
 
@@ -78,7 +77,8 @@ where
         observers: &OT,
         testcase: &mut Testcase<I>,
     ) -> Result<(), Error> {
-        self.append_stdout_observation_to_testcase(observers, testcase)
+        self.append_stdout_observation_to_testcase(observers, testcase);
+        Ok(())
     }
 }
 
@@ -134,13 +134,14 @@ where
         observers: &OT,
         testcase: &mut Testcase<I>,
     ) -> Result<(), Error> {
-        let observer = observers
-            .get(&self.o_ref)
-            .ok_or_else(|| Error::illegal_state("StdErrObserver is missing"))?;
+        let observer = observers.get(&self.o_ref).expect(
+            "StdErrToMetadataFeedback requires a StdErrObserver, but none was found. \
+Make sure the executor includes a StdErrObserver and you are not invoking this feedback in a crash handler with a different observer set.",
+        );
         let buffer = observer
             .output
             .as_ref()
-            .ok_or_else(|| Error::illegal_state("StdErrObserver has no stderr"))?;
+            .expect("StdErrObserver is present but has no captured stderr buffer. Ensure the executor captures stderr for this observer.");
         let stderr = String::from_utf8_lossy(buffer).into_owned();
 
         testcase
